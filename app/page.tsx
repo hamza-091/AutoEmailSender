@@ -27,13 +27,22 @@ export default function Home() {
   const [sendResult, setSendResult] = useState<"idle" | "sent" | "error">("idle");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-extract email from job post
+  // Auto-extract email and subject from job post
   useEffect(() => {
     if (!jobPost) return;
+    
+    // Extract email
     const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
-    const match = jobPost.match(emailRegex);
-    if (match) {
-      setRecipient(match[0]);
+    const emailMatch = jobPost.match(emailRegex);
+    if (emailMatch) {
+      setRecipient(emailMatch[0]);
+    }
+
+    // Extract subject line if specified in the job post (e.g. "Subject Line: MT BSM" or "Subject: ...")
+    const subjectRegex = /(?:Subject\s*Line|Subject):\s*(.+)/i;
+    const subjectMatch = jobPost.match(subjectRegex);
+    if (subjectMatch) {
+      setSubject(subjectMatch[1].trim());
     }
   }, [jobPost]);
 
@@ -115,7 +124,7 @@ export default function Home() {
         body: JSON.stringify({
           to: recipient,
           subject,
-          body: candidateName ? `${body}\n\n${candidateName}` : body,
+          body: (candidateName && !body.includes(candidateName)) ? `${body}\n\n${candidateName}` : body,
           senderEmail: session?.user?.email,
           attachment: cv,
         }),

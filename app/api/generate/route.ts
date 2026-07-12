@@ -21,33 +21,38 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const system = `You write short, polished, highly professional job-application emails that get recruiters to open the CV attached. Rules:
-- Output ONLY the email: a subject line, then the body. No preamble, no explanation, no markdown, no quotes around it.
-- Format exactly as:
-Subject: <subject line>
+    const system = `You are an expert career coach and HR recruiter.
+Your task is to write a professional job application email body based on the provided job description.
 
-<email body>
-- Keep it tight: 120-180 words in the body. Recruiters skim.
-- No generic filler ("I am writing to express my interest..."). Open with something specific to the role or company from the job post.
-- Mention 1-2 concrete, relevant skills or achievements from the candidate background. If the candidate background is empty, do not invent or fabricate specific experience or facts; instead, keep the email focused on your enthusiasm for the role's requirements as listed in the job post, and explicitly mention that your full background is detailed in the attached CV.
-- Close with a clear, low-friction call to action (e.g. availability for a call) and a professional sign-off.
-- Match the requested tone but never sound robotic, salesy, or over-the-top.
-- No emojis. No exclamation marks unless truly natural.`;
+Instructions:
+- Start the email with: "Dear HR," (or a more specific greeting if the company or team name is available in the job description, e.g., "Dear Puma Energy Pakistan Recruitment Team,").
+- Do NOT include a subject line.
+- Write ONLY the email body.
+- Keep the email between 120–180 words.
+- Use a confident, professional, and enthusiastic tone.
+- Tailor the email specifically to the job description, company, department, and required skills.
+- Mention how my academic background and technical skills align with the role.
+- Emphasize that I am a recent Computer Science graduate who is eager to learn, adapt quickly, and contribute from day one.
+- Highlight relevant skills only if they match the job description (e.g., AI, Full-Stack Development, JavaScript, Python, React, Node.js, Machine Learning, SQL, Excel, Data Analysis, Communication, Problem Solving, Attention to Detail, Teamwork).
+- If the role is non-technical (HR, Business Support, Administration, Operations, Marketing, E-commerce, etc.), avoid forcing AI or software development experience. Instead, emphasize transferable skills such as analytical thinking, organization, communication, adaptability, Excel, documentation, problem-solving, and willingness to learn.
+- Mention that my resume/CV is attached.
+- Thank the recruiter for their time and express interest in discussing my application further.
+- End with:
 
-    const userPrompt = `JOB POST:
-"""
-${jobPost}
-"""
+Sincerely,
+${candidateName || "Hamza Mehmood"}
 
-CANDIDATE NAME: ${candidateName || "the candidate"}
-CANDIDATE BACKGROUND / KEY POINTS TO USE (only use facts given here, don't invent anything):
-"""
-${candidateBackground || "No extra background given — keep the email role-focused and let the attached CV carry the details."}
-"""
+Important:
+- Never invent experience, internships, certifications, or achievements that are not mentioned in the job description.
+- Do not mention years of experience unless explicitly provided.
+- Avoid generic phrases like "I am writing to apply..." if a more engaging opening is possible.
+- Avoid clichés and repetitive wording.
+- Make every email sound unique rather than using the same template.
+- Do not use bullet points.
+- Produce polished, natural English suitable for multinational companies.`;
 
-DESIRED TONE: ${tone || "professional and confident"}
-
-Write the email now, following the system rules exactly.`;
+    const userPrompt = `Job Description:
+${jobPost}`;
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
@@ -82,9 +87,17 @@ Write the email now, following the system rules exactly.`;
       return NextResponse.json({ error: "Empty response from Gemini model." }, { status: 502 });
     }
 
+    // Try to extract subject line from the job description if present
+    const subjectMatchInJob = jobPost.match(/(?:Subject\s*Line|Subject):\s*(.+)/i);
+    let subject = subjectMatchInJob ? subjectMatchInJob[1].trim() : "";
+
+    // If the model did output a Subject line, extract it and clean the body
+    let body = text;
     const subjectMatch = text.match(/^Subject:\s*(.+)$/m);
-    const subject = subjectMatch ? subjectMatch[1].trim() : "";
-    const body = text.replace(/^Subject:\s*.+\n+/, "").trim();
+    if (subjectMatch) {
+      subject = subjectMatch[1].trim();
+      body = text.replace(/^Subject:\s*.+\n+/, "").trim();
+    }
 
     return NextResponse.json({ subject, body, raw: text });
   } catch (err: any) {
