@@ -29,7 +29,7 @@ Subject: <subject line>
 <email body>
 - Keep it tight: 120-180 words in the body. Recruiters skim.
 - No generic filler ("I am writing to express my interest..."). Open with something specific to the role or company from the job post.
-- Mention 1-2 concrete, relevant skills or achievements tied to what the job post actually asks for. Never invent facts not given by the candidate background.
+- Mention 1-2 concrete, relevant skills or achievements from the candidate background. If the candidate background is empty, do not invent or fabricate specific experience or facts; instead, keep the email focused on your enthusiasm for the role's requirements as listed in the job post, and explicitly mention that your full background is detailed in the attached CV.
 - Close with a clear, low-friction call to action (e.g. availability for a call) and a professional sign-off.
 - Match the requested tone but never sound robotic, salesy, or over-the-top.
 - No emojis. No exclamation marks unless truly natural.`;

@@ -11,7 +11,7 @@ export default function Home() {
   const { data: session, status } = useSession();
 
   const [jobPost, setJobPost] = useState("");
-  const [candidateName, setCandidateName] = useState("");
+  const [candidateName, setCandidateName] = useState("Hamza Mehmood");
   const [background, setBackground] = useState("");
   const [tone, setTone] = useState(TONES[0]);
 
@@ -27,6 +27,16 @@ export default function Home() {
   const [sendResult, setSendResult] = useState<"idle" | "sent" | "error">("idle");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Auto-extract email from job post
+  useEffect(() => {
+    if (!jobPost) return;
+    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+    const match = jobPost.match(emailRegex);
+    if (match) {
+      setRecipient(match[0]);
+    }
+  }, [jobPost]);
+
   // Load a previously-saved CV so the user only has to upload it once.
   useEffect(() => {
     const saved = localStorage.getItem("emailGenieCv");
@@ -36,7 +46,11 @@ export default function Home() {
       } catch {}
     }
     const savedName = localStorage.getItem("emailGenieName");
-    if (savedName) setCandidateName(savedName);
+    if (savedName) {
+      setCandidateName(savedName);
+    } else {
+      setCandidateName("Hamza Mehmood");
+    }
   }, []);
 
   useEffect(() => {
