@@ -4,7 +4,7 @@ Job post paste karo → polished, recruiter-ready email milta hai → apni Gmail
 
 ## Kya kya lagega (3 cheezein)
 
-1. **Anthropic API key** (email likhne ke liye) — https://console.anthropic.com/settings/keys
+1. **Gemini API key** (email likhne ke liye) — Google AI Studio (https://aistudio.google.com/)
 2. **Google OAuth credentials** (Gmail se bhejne ke liye) — Google Cloud Console se
 3. **Vercel account** (deploy ke liye)
 
@@ -40,7 +40,7 @@ Yeh zaroori hai kyunki Gmail se email bhejne ke liye Google ki permission chahiy
 
    | Key | Value |
    |---|---|
-   | `ANTHROPIC_API_KEY` | apni Claude API key |
+   | `GEMINI_API_KEY` | apni Gemini API key |
    | `GOOGLE_CLIENT_ID` | Step 1 se |
    | `GOOGLE_CLIENT_SECRET` | Step 1 se |
    | `NEXTAUTH_SECRET` | koi bhi random 32-char string (terminal mein `openssl rand -base64 32` chala ke bana sakte ho) |

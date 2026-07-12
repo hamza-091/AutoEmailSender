@@ -13,10 +13,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: "Server is missing ANTHROPIC_API_KEY. Add it in your Vercel project settings." },
+        { error: "Server is missing GEMINI_API_KEY. Add it in your environment variables." },
         { status: 500 }
       );
     }
@@ -49,37 +49,37 @@ DESIRED TONE: ${tone || "professional and confident"}
 
 Write the email now, following the system rules exactly.`;
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-3-5-sonnet-latest",
-        max_tokens: 600,
-        system,
-        messages: [{ role: "user", content: userPrompt }],
-      }),
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: userPrompt }] }],
+          systemInstruction: { parts: [{ text: system }] },
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 600,
+          },
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errText = await response.text();
       return NextResponse.json(
-        { error: `Claude API error: ${errText}` },
+        { error: `Gemini API error: ${errText}` },
         { status: 502 }
       );
     }
 
     const data = await response.json();
-    const text = data.content
-      ?.map((block: any) => (block.type === "text" ? block.text : ""))
-      .join("")
-      .trim();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!text) {
-      return NextResponse.json({ error: "Empty response from model." }, { status: 502 });
+      return NextResponse.json({ error: "Empty response from Gemini model." }, { status: 502 });
     }
 
     const subjectMatch = text.match(/^Subject:\s*(.+)$/m);
