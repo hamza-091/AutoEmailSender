@@ -61,7 +61,7 @@ Write the email now, following the system rules exactly.`;
           systemInstruction: { parts: [{ text: system }] },
           generationConfig: {
             temperature: 0.7,
-            maxOutputTokens: 600,
+            maxOutputTokens: 2500,
           },
         }),
       }
