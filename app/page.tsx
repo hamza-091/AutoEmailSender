@@ -284,6 +284,9 @@ export default function Home() {
         } else {
           addLog(`Rejected: ${matchData.reason || "Does not match CV profile."}`);
         }
+        
+        // Delay to respect Gemini API rate limits (15 RPM on free tier)
+        await new Promise((resolve) => setTimeout(resolve, 2500));
       }
 
       if (matchedJobsList.length === 0) {

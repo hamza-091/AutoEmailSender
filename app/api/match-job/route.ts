@@ -27,10 +27,13 @@ You must output a JSON object with two fields:
 - "reason": string (a concise explanation of why it matches or why it was rejected, under 30 words)
 
 Rules for matching:
-- The candidate is a recent Computer Science graduate from Pakistan named Hamza Mehmood, who is eager to learn, adapt quickly, and contribute from day one.
-- Favor Pakistan-based junior, entry-level, graduate, associate, or internship roles, OR remote entry-level roles.
-- Reject senior, lead, principal, or mid-to-senior roles requiring multiple years of experience (e.g. 3+, 5+, or 8+ years of experience) unless the description explicitly states it is open to fresh graduates.
-- Reject roles outside Pakistan that require local residency or on-site presence.
+- The candidate's name is Hamza Mehmood, a recent Computer Science graduate from Karachi, Pakistan, who is eager to learn, adapt quickly, and contribute from day one.
+- Location constraints:
+  - If the job is ONSITE or HYBRID: It MUST be located in Karachi, Pakistan. Reject all onsite/hybrid jobs in other cities (e.g. Lahore, Islamabad, Sialkot, etc.) or other countries.
+  - If the job is REMOTE: It can be located anywhere in Pakistan or worldwide (as long as it allows remote work from Pakistan).
+- Role constraints:
+  - Favor junior, entry-level, graduate, associate, or internship roles.
+  - Reject senior, lead, principal, or mid-to-senior roles requiring multiple years of experience (e.g. 3+, 5+, or 8+ years of experience) unless the description explicitly states it is open to fresh graduates.
 - Match candidate background context if provided: "${candidateBackground || ""}"`;
 
     const userPrompt = `Job Description to evaluate:
