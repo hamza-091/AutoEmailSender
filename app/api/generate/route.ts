@@ -22,17 +22,19 @@ export async function POST(req: NextRequest) {
     }
 
     const system = `You are an expert career coach and HR recruiter.
-Your task is to write a professional job application email body based on the provided job description.
+Your task is to write a professional job application email based on the provided job description.
 
 Instructions:
 - Start the email with: "Dear HR," (or a more specific greeting if the company or team name is available in the job description, e.g., "Dear Puma Energy Pakistan Recruitment Team,").
-- Do NOT include a subject line.
-- Write ONLY the email body.
-- Keep the email between 120–180 words.
-- Use a confident, professional, and enthusiastic tone.
+- Always include a subject line at the very beginning of your response, prefixed with 'Subject:'. If the job post explicitly mentions a specific subject line format, use that exact format. Otherwise, generate an appropriate, professional, and concise subject line (e.g., 'Job Application: [Job Title] - [Candidate Name]' or similar).
+- Keep the email extremely concise, personalized, and strictly under 170 words (ideally between 100-150 words). Avoid longer, generic cover-letter-like emails. Recruiters scan emails quickly (10-20 seconds), so being concise has a stronger impact.
+- Avoid long, winding sentences (especially the first sentence). Get to the point quickly.
+- Avoid overused generic phrases and standard clichés (e.g., instead of repeating 'analytical thinking and problem-solving skills' or calling yourself a generic 'quick learner', describe your qualities naturally and confidently).
+- Avoid repetition. Do not repeat the idea that you are eager to learn and contribute across multiple paragraphs (mention it once and move on).
+- Use a confident, professional, and enthusiastic tone that reads naturally, which is what recruiters prefer, without overstating your experience.
 - Tailor the email specifically to the job description, company, department, and required skills.
 - Mention how my academic background and technical skills align with the role.
-- Emphasize that I am a recent Computer Science graduate who is eager to learn, adapt quickly, and contribute from day one.
+- Emphasize that I am a recent Computer Science graduate who is eager to learn, adapt quickly, and contribute.
 - Highlight relevant skills only if they match the job description (e.g., AI, Full-Stack Development, JavaScript, Python, React, Node.js, Machine Learning, SQL, Excel, Data Analysis, Communication, Problem Solving, Attention to Detail, Teamwork).
 - If the role is non-technical (HR, Business Support, Administration, Operations, Marketing, E-commerce, etc.), avoid forcing AI or software development experience. Instead, emphasize transferable skills such as analytical thinking, organization, communication, adaptability, Excel, documentation, problem-solving, and willingness to learn.
 - Mention that my resume/CV is attached.
@@ -46,10 +48,23 @@ Important:
 - Never invent experience, internships, certifications, or achievements that are not mentioned in the job description.
 - Do not mention years of experience unless explicitly provided.
 - Avoid generic phrases like "I am writing to apply..." if a more engaging opening is possible.
-- Avoid clichés and repetitive wording.
 - Make every email sound unique rather than using the same template.
 - Do not use bullet points.
-- Produce polished, natural English suitable for multinational companies.`;
+- Produce polished, natural English suitable for multinational companies.
+
+Here is an example of the target style, conciseness, and natural tone to emulate:
+Dear HR,
+
+I hope you are doing well.
+
+I am excited to apply for the internship opportunity at HubSalt's Karachi office. As a recent Computer Science graduate, I am eager to begin my professional career in a collaborative environment where I can learn, contribute, and grow. I was particularly interested to see that HubSalt welcomes candidates from diverse academic backgrounds, reflecting a culture that values potential and adaptability.
+
+Throughout my academic journey, I developed strong analytical, problem-solving, and organizational skills by working on technical projects and collaborating with teams. I am a fast learner who adapts quickly to new challenges, communicates effectively, and takes ownership of assigned responsibilities. I am confident I can make a positive contribution while gaining valuable industry experience.
+
+My resume is attached for your review. Thank you for considering my application. I would welcome the opportunity to discuss how I can contribute to HubSalt's team.
+
+Sincerely,
+Hamza Mehmood`;
 
     const userPrompt = `Job Description:
 ${jobPost}`;
@@ -93,10 +108,12 @@ ${jobPost}`;
 
     // If the model did output a Subject line, extract it and clean the body
     let body = text;
-    const subjectMatch = text.match(/^Subject:\s*(.+)$/m);
+    const subjectMatch = text.match(/^\*?\*?Subject\*?\*?:\s*(.+)$/mi);
     if (subjectMatch) {
-      subject = subjectMatch[1].trim();
-      body = text.replace(/^Subject:\s*.+\n+/, "").trim();
+      if (!subject) {
+        subject = subjectMatch[1].replace(/\*+/g, "").trim();
+      }
+      body = text.replace(/^\*?\*?Subject\*?\*?:\s*.+\n*/i, "").trim();
     }
 
     return NextResponse.json({ subject, body, raw: text });
