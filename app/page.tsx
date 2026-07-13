@@ -43,6 +43,27 @@ export default function Home() {
   // History log state
   const [history, setHistory] = useState<any[]>([]);
 
+  // Check for duplicate manual sends in History
+  const [duplicateEntry, setDuplicateEntry] = useState<any | null>(null);
+
+  useEffect(() => {
+    if (!recipient && !company) {
+      setDuplicateEntry(null);
+      return;
+    }
+    
+    const found = history.find(item => {
+      if (item.status !== "Sent") return false;
+      
+      const emailMatch = recipient && item.recipient && item.recipient.toLowerCase().trim() === recipient.toLowerCase().trim();
+      const companyMatch = company && item.company && item.company.toLowerCase().trim() === company.toLowerCase().trim();
+      
+      return emailMatch || companyMatch;
+    });
+    
+    setDuplicateEntry(found || null);
+  }, [recipient, company, history]);
+
   // User Gemini API Key state
   const [geminiApiKey, setGeminiApiKey] = useState("");
 
@@ -192,6 +213,16 @@ export default function Home() {
       setError("Add the recruiter's email address before sending.");
       return;
     }
+
+    if (duplicateEntry) {
+      const confirmSend = window.confirm(
+        `Warning: You already successfully sent an email to ${duplicateEntry.recipient} ${
+          duplicateEntry.company ? `(${duplicateEntry.company})` : ""
+        } on ${new Date(duplicateEntry.timestamp).toLocaleDateString()}.\n\nAre you sure you want to send another one?`
+      );
+      if (!confirmSend) return;
+    }
+
     setSending(true);
     const finalBody = (candidateName && !body.includes(candidateName)) ? `${body}\n\n${candidateName}` : body;
     try {
@@ -737,6 +768,23 @@ export default function Home() {
                   </label>
                 )}
               </div>
+
+              {duplicateEntry && (
+                <div className="mb-3 rounded-lg border border-[#D97706]/30 bg-[#FFFBEB] p-3 text-xs text-[#78350F] flex items-start justify-between gap-3 animate-fade-up">
+                  <span className="flex gap-2">
+                    <span className="text-base shrink-0 select-none">⚠️</span>
+                    <span>
+                      You already successfully sent an email to <strong>{duplicateEntry.recipient}</strong> {duplicateEntry.company ? `(${duplicateEntry.company})` : ""} on {new Date(duplicateEntry.timestamp).toLocaleDateString()}.
+                    </span>
+                  </span>
+                  <button
+                    onClick={() => setActiveTab("history")}
+                    className="text-[#B45309] font-semibold hover:underline shrink-0 focus-ring"
+                  >
+                    View in History →
+                  </button>
+                </div>
+              )}
 
               <div className="flex flex-col gap-2 sm:flex-row">
                 <input
