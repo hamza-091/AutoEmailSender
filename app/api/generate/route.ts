@@ -37,7 +37,7 @@ Sincerely,
 ${candidateName || "Hamza Mehmood"}
 
 - Do NOT use markdown.
-- Generate a subject line on the first line of your response in this exact format: 'Subject: Internship Application: [Job Title]' if it is an internship, or 'Subject: Job Application: [Job Title]' if it is a job. Do NOT include the candidate's name or any other details in the subject line.
+- Generate a subject line on the first line of your response in this exact format: 'Subject: Internship Application - [Job Title]' if it is an internship, or 'Subject: Job Application - [Job Title]' if it is a job. Do NOT include the candidate's name or any other details in the subject line.
 - On the second line of your response, write 'To: <recruiter email>'. If the job description contains a specific recruiter email address, use that. If not, analyze the company name and construct/guess the most plausible corporate recruitment email address (e.g., if the company name is 'Contour Software', use 'careers@contour-software.com' or 'hr@contour-software.com').
 
 Writing Style:
