@@ -228,10 +228,37 @@ export default function Home() {
     setAutoJobs([]);
 
     try {
-      addLog(`Initiating LinkedIn job search for keywords: "${autoKeywords}" in location: "${autoLocation}"...`);
-      const jobsRes = await fetch(`/api/fetch-jobs?keywords=${encodeURIComponent(autoKeywords)}&location=${encodeURIComponent(autoLocation)}`);
-      if (!jobsRes.ok) throw new Error("Failed to fetch jobs listing.");
-      const { jobs } = await jobsRes.json();
+      let jobs = [];
+      if (autoLocation.toLowerCase() === "pakistan") {
+        addLog("Location is 'Pakistan' - performing optimized dual search: Onsite in Karachi + Remote Pakistan-wide.");
+        
+        addLog("Searching for onsite/hybrid roles in Karachi...");
+        const karachiRes = await fetch(`/api/fetch-jobs?keywords=${encodeURIComponent(autoKeywords)}&location=Karachi`);
+        
+        addLog("Searching for remote roles across Pakistan...");
+        const remoteRes = await fetch(`/api/fetch-jobs?keywords=${encodeURIComponent(autoKeywords + " Remote")}&location=Pakistan`);
+        
+        let fetchedJobs: any[] = [];
+        if (karachiRes.ok) {
+          const data = await karachiRes.json();
+          if (data.jobs) fetchedJobs = [...fetchedJobs, ...data.jobs];
+        }
+        if (remoteRes.ok) {
+          const data = await remoteRes.json();
+          if (data.jobs) fetchedJobs = [...fetchedJobs, ...data.jobs];
+        }
+        
+        // Deduplicate jobs by ID
+        const uniqueJobsMap = new Map();
+        fetchedJobs.forEach(job => uniqueJobsMap.set(job.id, job));
+        jobs = Array.from(uniqueJobsMap.values());
+      } else {
+        addLog(`Searching LinkedIn for keywords: "${autoKeywords}" in location: "${autoLocation}"...`);
+        const jobsRes = await fetch(`/api/fetch-jobs?keywords=${encodeURIComponent(autoKeywords)}&location=${encodeURIComponent(autoLocation)}`);
+        if (!jobsRes.ok) throw new Error("Failed to fetch jobs listing.");
+        const data = await jobsRes.json();
+        if (data.jobs) jobs = data.jobs;
+      }
       
       if (!jobs || jobs.length === 0) {
         addLog("No potential jobs found in search. Completed.");
@@ -249,6 +276,18 @@ export default function Home() {
       const jobsToProcess = jobs.slice(0, 30);
       for (let i = 0; i < jobsToProcess.length && matchCount < 5; i++) {
         const currentJob = jobsToProcess[i];
+        
+        // Skip duplicate companies that we already sent an email to in this session or past sessions
+        const alreadySent = history.some(item => 
+          item.status === "Sent" && 
+          item.company && 
+          item.company.toLowerCase().trim() === currentJob.company.toLowerCase().trim()
+        );
+        if (alreadySent) {
+          addLog(`Skipped "${currentJob.title}" at ${currentJob.company}: Already applied to this company.`);
+          continue;
+        }
+        
         addLog(`[${i+1}/${jobsToProcess.length}] Fetching details for "${currentJob.title}" at ${currentJob.company}...`);
         
         const descRes = await fetch(`/api/fetch-job-desc?jobId=${currentJob.id}`);
@@ -257,6 +296,9 @@ export default function Home() {
           continue;
         }
         const { description } = await descRes.json();
+        
+        // Pacing delay (4 seconds) right before calling Gemini Matcher to prevent 429/502 errors
+        await new Promise((resolve) => setTimeout(resolve, 4000));
         
         addLog(`Filtering "${currentJob.title}" through Gemini AI...`);
         const matchRes = await fetch("/api/match-job", {
@@ -284,9 +326,6 @@ export default function Home() {
         } else {
           addLog(`Rejected: ${matchData.reason || "Does not match CV profile."}`);
         }
-        
-        // Delay to respect Gemini API rate limits (15 RPM on free tier)
-        await new Promise((resolve) => setTimeout(resolve, 2500));
       }
 
       if (matchedJobsList.length === 0) {
@@ -301,6 +340,10 @@ export default function Home() {
 
       for (let k = 0; k < matchedJobsList.length; k++) {
         const job = matchedJobsList[k];
+        
+        // Pacing delay (4 seconds) right before calling Gemini Generator
+        await new Promise((resolve) => setTimeout(resolve, 4000));
+        
         addLog(`Drafting email for "${job.title}" at ${job.company}...`);
         
         // Try to extract email from job post
@@ -386,9 +429,6 @@ export default function Home() {
           });
         }
         setAutoJobs([...matchedJobsList]);
-        
-        // Delay between sends to avoid API rate limiting
-        await new Promise((resolve) => setTimeout(resolve, 2500));
       }
 
       setAutoStatus("done");
