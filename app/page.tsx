@@ -45,6 +45,8 @@ export default function Home() {
 
   // Check for duplicate manual sends in History
   const [duplicateEntry, setDuplicateEntry] = useState<any | null>(null);
+  const [highlightedHistoryId, setHighlightedHistoryId] = useState<string | null>(null);
+  const [expandedHistoryIds, setExpandedHistoryIds] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!recipient && !company) {
@@ -778,7 +780,20 @@ export default function Home() {
                     </span>
                   </span>
                   <button
-                    onClick={() => setActiveTab("history")}
+                    onClick={() => {
+                      setActiveTab("history");
+                      setHighlightedHistoryId(duplicateEntry.id);
+                      setExpandedHistoryIds(prev => ({ ...prev, [duplicateEntry.id]: true }));
+                      setTimeout(() => {
+                        const el = document.getElementById(`history-${duplicateEntry.id}`);
+                        if (el) {
+                          el.scrollIntoView({ behavior: "smooth", block: "center" });
+                        }
+                      }, 150);
+                      setTimeout(() => {
+                        setHighlightedHistoryId(null);
+                      }, 3000);
+                    }}
                     className="text-[#B45309] font-semibold hover:underline shrink-0 focus-ring"
                   >
                     View in History →
@@ -971,7 +986,13 @@ export default function Home() {
           ) : (
             <div className="space-y-4">
               {history.map((item) => (
-                <HistoryItem key={item.id} item={item} />
+                <HistoryItem 
+                  key={item.id} 
+                  item={item} 
+                  expanded={!!expandedHistoryIds[item.id]}
+                  onToggle={() => setExpandedHistoryIds(prev => ({ ...prev, [item.id]: !prev[item.id] }))}
+                  isHighlighted={highlightedHistoryId === item.id}
+                />
               ))}
             </div>
           )}
@@ -986,13 +1007,28 @@ export default function Home() {
 }
 
 // History expanded display item
-function HistoryItem({ item }: { item: any }) {
-  const [expanded, setExpanded] = useState(false);
-
+function HistoryItem({ 
+  item, 
+  expanded, 
+  onToggle, 
+  isHighlighted 
+}: { 
+  item: any; 
+  expanded: boolean; 
+  onToggle: () => void; 
+  isHighlighted: boolean; 
+}) {
   return (
-    <div className="border border-line rounded-lg bg-white overflow-hidden transition-all shadow-sm">
+    <div 
+      id={`history-${item.id}`} 
+      className={`border rounded-lg bg-white overflow-hidden transition-all duration-500 shadow-sm ${
+        isHighlighted 
+          ? "ring-2 ring-brass bg-brass/5 border-brass" 
+          : "border-line"
+      }`}
+    >
       <div 
-        onClick={() => setExpanded(!expanded)}
+        onClick={onToggle}
         className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 cursor-pointer hover:bg-paper transition"
       >
         <div className="space-y-1">
