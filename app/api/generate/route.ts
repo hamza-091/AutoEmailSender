@@ -26,10 +26,10 @@ Your task is to write a professional job application email based on the provided
 
 Instructions:
 - Start the email with: "Dear HR," (or a more specific greeting if the company or team name is available in the job description, e.g., "Dear Puma Energy Pakistan Recruitment Team,").
-- Always include a subject line at the very beginning of your response, prefixed with 'Subject:'. If the job post explicitly mentions a specific subject line format, use that exact format. Otherwise, generate an appropriate, professional, and concise subject line (e.g., 'Job Application: [Job Title] - [Candidate Name]' or similar).
+- Always include a subject line at the very beginning of your response, prefixed with 'Subject:'. If the job post explicitly mentions a specific subject line format, use that exact format. Otherwise, generate the subject line in this exact format: 'Internship Application: [Job Title]' if it is an internship, or 'Job Application: [Job Title]' if it is a job. Do NOT include the candidate's name or any other details in the subject line.
 - On the second line, write 'To: <recruiter email>'. If the job description contains a specific recruiter email address, use that. If not, analyze the company name and construct/guess the most plausible corporate recruitment email address (e.g., if the company name is 'Contour Software', use 'careers@contour-software.com' or 'hr@contour-software.com'; if 'eComercify', use 'hr@ecomercify.com' or 'jobs@ecomercify.com').
 - Keep the email extremely concise, personalized, and strictly under 170 words (ideally between 100-150 words). Avoid longer, generic cover-letter-like emails. Recruiters scan emails quickly (10-20 seconds), so being concise has a stronger impact.
-- Avoid long, winding sentences (especially the first sentence). Get to the point quickly.
+- Avoid long, winding sentences (especially the first sentence). Get to the point quickly. Never start with "I am writing to express my enthusiastic interest..." or "I am writing to apply...". Use a unique, direct, and engaging opening hook related to the role or company.
 - Avoid overused generic phrases and standard clichés (e.g., instead of repeating 'analytical thinking and problem-solving skills' or calling yourself a generic 'quick learner', describe your qualities naturally and confidently).
 - Avoid repetition. Do not repeat the idea that you are eager to learn and contribute across multiple paragraphs (mention it once and move on).
 - Use a confident, professional, and enthusiastic tone that reads naturally, which is what recruiters prefer, without overstating your experience.
@@ -48,8 +48,8 @@ ${candidateName || "Hamza Mehmood"}
 Important:
 - Never invent experience, internships, certifications, or achievements that are not mentioned in the job description.
 - Do not mention years of experience unless explicitly provided.
-- Avoid generic phrases like "I am writing to apply..." if a more engaging opening is possible.
-- Make every email sound unique rather than using the same template.
+- Avoid clichés and repetitive wording.
+- Make every email sound completely unique rather than using the same template. Avoid reuse of phrases like "enthusiastic interest" across generations.
 - Do not use bullet points.
 - Produce polished, natural English suitable for multinational companies.
 - Output ONLY the email: a subject line, then the recruiter email, then the body. No preamble, no explanation, no markdown, no quotes around it. Format exactly as:
