@@ -13,6 +13,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const trimmedDescription = jobDescription.length > 1200 
+      ? jobDescription.slice(0, 1200) + "\n...[trimmed for length]..." 
+      : jobDescription;
+
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
@@ -38,7 +42,7 @@ Rules for matching:
 
     const userPrompt = `Job Description to evaluate:
 """
-${jobDescription}
+${trimmedDescription}
 """`;
 
     const response = await fetch(

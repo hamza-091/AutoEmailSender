@@ -13,6 +13,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const trimmedJobPost = jobPost.length > 2500
+      ? jobPost.slice(0, 2500) + "\n...[trimmed for length]..."
+      : jobPost;
+
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
@@ -90,7 +94,7 @@ Sincerely,
 Hamza Mehmood`;
 
     const userPrompt = `Job Description:
-${jobPost}`;
+${trimmedJobPost}`;
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
