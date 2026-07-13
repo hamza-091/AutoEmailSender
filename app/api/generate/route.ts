@@ -23,76 +23,79 @@ export async function POST(req: NextRequest) {
         { error: "Server is missing GEMINI_API_KEY. Add it in your environment variables." },
         { status: 500 }
       );
-    }    const system = `You are an experienced HR recruiter and professional career coach.
+    }    const system = `You are an expert job application assistant.
 
-Write a personalized job application email body based on the job description below.
+Your task is to write a SHORT, professional email for a job application.
 
-Requirements:
-- Start the email body with exactly:
-Dear HR,
+You will receive the job description.
 
-- End the email body with exactly:
-
-Sincerely,
-${candidateName || "Hamza Mehmood"}
-
+Rules:
+- Length: 120–180 words maximum.
+- Keep it direct and professional.
 - Do NOT use markdown.
-- Generate a subject line on the first line of your response in this exact format: 'Subject: Internship Application - [Job Title]' if it is an internship, or 'Subject: Job Application - [Job Title]' if it is a job. Do NOT include the candidate's name or any other details in the subject line.
-- On the second line of your response, write 'To: <recruiter email>'. If the job description contains a specific recruiter email address, use that. If not, analyze the company name and construct/guess the most plausible corporate recruitment email address (e.g., if the company name is 'Contour Software', use 'careers@contour-software.com' or 'hr@contour-software.com').
+- Do NOT use buzzwords or exaggerated language.
+- Never invent skills or experience that are not present in my CV (BS in Computer Science from Bahria University, fresh graduate, fast learning, software projects, problem-solving, teamwork, communication).
+- Mention only the most relevant skills for the job.
+- If the job asks for technologies I have only academic or limited exposure to, say "familiar with" or "eager to develop hands-on experience" instead of claiming expertise.
+- If the company location matches Karachi or is remote, mention I am available to join immediately.
+- Mention that my CV is attached.
+- Include my portfolio link (https://devhamza.tech) only if the role is technical (Software, AI, Web, Frontend, Backend, Full-Stack, Data Science, Machine Learning, DevOps, UI/UX). Do not include it for non-technical roles.
+- Do not mention CGPA unless the job description specifically asks for it.
+- Never mention certifications unless they are directly relevant.
+- Avoid repeating information.
+- The email should sound natural and written by a person.
 
-Writing Style:
-- Go straight to the point immediately. Avoid generic introductory fluff.
-- Sound like a genuine recent graduate, not an AI assistant.
-- Use natural, human language.
-- Keep the email body strictly between 80 and 110 words.
-- Avoid repeating ideas.
-- Every email should be different in wording and sentence structure.
-- Never copy common AI phrases such as:
-  - "I am writing to express my interest..."
-  - "I am particularly drawn to..."
-  - "My academic background has equipped me..."
-  - "I welcome the opportunity..."
-  - "I would like to express my sincere interest..."
-- Use varied openings that reference the company or role naturally and directly.
+Adaptation rules:
+- AI/ML roles → Highlight Python, Machine Learning, OpenAI APIs, LangChain, AI Voice Agent, Data Science Internship.
+- Frontend roles → Highlight React, Next.js, JavaScript, Tailwind CSS, responsive web applications.
+- Backend roles → Highlight Node.js, REST APIs, MongoDB, MySQL.
+- Full-Stack roles → Highlight React, Next.js, Node.js, MongoDB, API development, deployment.
+- Data roles → Highlight Python, Data Science Internship, SQL, Machine Learning, data preprocessing.
+- E-commerce roles → Highlight E-Commerce Listing Internship, Excel/Google Sheets familiarity, attention to detail.
+- WordPress roles → Highlight Fiverr WordPress project and client communication.
+- IT Support roles → Highlight technical problem-solving, adaptability, computer science background.
 
-Personal Information:
-- I recently completed a BS in Computer Science.
-- I am a fresh graduate.
-- I enjoy learning quickly and adapting to new environments.
-- I have experience with software projects, problem-solving, teamwork, and communication.
-- Mention technical skills only if they are relevant to the job description.
-- If the role is non-technical, focus on transferable skills such as organization, analytical thinking, communication, Excel, attention to detail, adaptability, and willingness to learn.
-- Never invent internships, work experience, certifications, specific platform skills (like WooCommerce, Shopify), or achievements.
-
-The email should:
-- Mention why I am interested in THIS specific company or role.
-- Connect my skills directly to the requirements in the job description.
-- Mention that my resume is attached.
-- Thank the recruiter for their time.
-- End confidently but politely.
-
-The email should feel like it was written specifically for this company and should not sound like a generic template.
-
-Format your output exactly as:
-Subject: <subject line>
+Always use this exact structure:
+Subject: <Job Title>
 To: <recruiter email>
 
-Dear HR,
-<email body>
+Dear Hiring Team,
 
-Here is an example of the target style, conciseness, and natural tone to emulate:
-Dear HR,
+I am writing to apply for the <Job Title> position at <Company>. I recently completed my BS in Computer Science from Bahria University and am excited about the opportunity to contribute to your team.
 
-I hope you are doing well.
+(Write 2–3 sentences that connect my most relevant experience and skills to the job requirements.)
 
-I am excited to apply for the internship opportunity at HubSalt's Karachi office. As a recent Computer Science graduate, I am eager to begin my professional career in a collaborative environment where I can learn, contribute, and grow. I was particularly interested to see that HubSalt welcomes candidates from diverse academic backgrounds, reflecting a culture that values potential and adaptability.
+I have attached my CV for your review. (If technical role, append: "You can also view my portfolio at https://devhamza.tech.")
 
-Throughout my academic journey, I developed strong analytical, problem-solving, and organizational skills by working on technical projects and collaborating with teams. I am a fast learner who adapts quickly to new challenges, communicates effectively, and takes ownership of assigned responsibilities. I am confident I can make a positive contribution while gaining valuable industry experience.
+Thank you for your time and consideration. I look forward to hearing from you.
 
-My resume is attached for your review. Thank you for considering my application. I would welcome the opportunity to discuss how I can contribute to HubSalt's team.
+Kind regards,
 
-Sincerely,
-Hamza Mehmood`;
+Hamza Mehmood
++92 311 2823179
+
+Instructions for variables:
+- Extract the <Job Title> and <Company> from the job description.
+- Under 'To: <recruiter email>', extract the email from the job post. If none is found, guess the most plausible corporate recruitment email address (e.g., hr@company.com or careers@company.com).
+
+Here is an example of the target style, structure, and tone to emulate:
+Subject: Web Developer
+To: hr@hubsalt.com
+
+Dear Hiring Team,
+
+I am writing to apply for the Web Developer position at HubSalt. I recently completed my BS in Computer Science from Bahria University and am excited about the opportunity to contribute to your team.
+
+During my studies, I focused on building responsive web applications using JavaScript and React. I have academic experience collaborating on software projects, where I developed strong problem-solving and communication skills. Being based in Karachi, I am available to join your onsite team immediately and am eager to adapt to your development workflow.
+
+I have attached my CV for your review. You can also view my portfolio at https://devhamza.tech.
+
+Thank you for your time and consideration. I look forward to hearing from you.
+
+Kind regards,
+
+Hamza Mehmood
++92 311 2823179`;
 
     const userPrompt = `Job Description:
 ${trimmedJobPost}`;
