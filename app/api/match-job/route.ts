@@ -17,11 +17,12 @@ export async function POST(req: NextRequest) {
       ? jobDescription.slice(0, 1200) + "\n...[trimmed for length]..." 
       : jobDescription;
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const userKey = req.headers.get("x-gemini-key");
+    const apiKey = userKey || process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: "Server is missing GEMINI_API_KEY. Add it in your environment variables." },
-        { status: 500 }
+        { error: "Missing Gemini API Key. Please enter your Gemini API Key in the settings at the top of the page." },
+        { status: 400 }
       );
     }
 

@@ -42,6 +42,9 @@ export default function Home() {
   // History log state
   const [history, setHistory] = useState<any[]>([]);
 
+  // User Gemini API Key state
+  const [geminiApiKey, setGeminiApiKey] = useState("");
+
   // Load saved CV & Name & History from local storage on mount
   useEffect(() => {
     const savedCv = localStorage.getItem("emailGenieCv");
@@ -63,6 +66,27 @@ export default function Home() {
       } catch {}
     }
   }, []);
+
+  // Load saved Gemini API Key when session status or email changes
+  useEffect(() => {
+    if (session?.user?.email) {
+      const savedKey = localStorage.getItem(`emailGenieGeminiKey_${session.user.email}`);
+      setGeminiApiKey(savedKey || "");
+    } else {
+      const guestKey = localStorage.getItem("emailGenieGeminiKey_guest");
+      setGeminiApiKey(guestKey || "");
+    }
+  }, [session]);
+
+  // Save Gemini API Key
+  function handleSaveApiKey(key: string) {
+    setGeminiApiKey(key);
+    if (session?.user?.email) {
+      localStorage.setItem(`emailGenieGeminiKey_${session.user.email}`, key);
+    } else {
+      localStorage.setItem("emailGenieGeminiKey_guest", key);
+    }
+  }
 
   // Update saved name
   useEffect(() => {
@@ -138,9 +162,12 @@ export default function Home() {
     setLoading(true);
     setJustStamped(false);
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (geminiApiKey) headers["x-gemini-key"] = geminiApiKey;
+
       const res = await fetch("/api/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ jobPost, candidateName, candidateBackground: background, tone }),
       });
       const data = await res.json();
@@ -301,9 +328,12 @@ export default function Home() {
         await new Promise((resolve) => setTimeout(resolve, 4000));
         
         addLog(`Filtering "${currentJob.title}" through Gemini AI...`);
+        const matchHeaders: Record<string, string> = { "Content-Type": "application/json" };
+        if (geminiApiKey) matchHeaders["x-gemini-key"] = geminiApiKey;
+
         const matchRes = await fetch("/api/match-job", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: matchHeaders,
           body: JSON.stringify({ jobDescription: description, candidateBackground: background }),
         });
         
@@ -351,9 +381,12 @@ export default function Home() {
         let extractedEmail = job.description.match(emailRegex)?.[0];
         
         // Generate customized email body
+        const genHeaders: Record<string, string> = { "Content-Type": "application/json" };
+        if (geminiApiKey) genHeaders["x-gemini-key"] = geminiApiKey;
+
         const genRes = await fetch("/api/generate", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: genHeaders,
           body: JSON.stringify({
             jobPost: job.description,
             candidateName,
@@ -462,25 +495,71 @@ export default function Home() {
         </p>
       </header>
 
-      {/* Auth strip */}
-      <div className="mx-auto mb-8 flex max-w-6xl justify-center">
+      {/* Auth & Settings strip */}
+      <div className="mx-auto mb-8 flex max-w-6xl flex-col items-center gap-4">
         {status === "loading" ? null : session ? (
-          <div className="flex items-center gap-3 rounded-full border border-line bg-white/60 px-4 py-1.5 text-xs text-graphite">
-            <span>
-              Connected as <span className="font-medium text-ink">{session.user?.email}</span>
-            </span>
-            <button onClick={() => signOut()} className="text-brassDark hover:underline focus-ring">
-              Disconnect
-            </button>
+          <div className="flex flex-col md:flex-row items-center gap-4 w-full justify-center">
+            <div className="flex items-center gap-3 rounded-full border border-line bg-white/60 px-4 py-2 text-xs text-graphite shadow-sm">
+              <span>
+                Connected as <span className="font-medium text-ink text-center sm:text-left">{session.user?.email}</span>
+              </span>
+              <button onClick={() => signOut()} className="text-brassDark hover:underline focus-ring shrink-0 font-medium">
+                Disconnect
+              </button>
+            </div>
+            
+            {/* Gemini API Key Field */}
+            <div className="flex items-center gap-2 rounded-full border border-line bg-white/60 px-4 py-2 text-xs text-graphite shadow-sm w-full max-w-sm">
+              <span className="font-medium shrink-0">Gemini API Key:</span>
+              <input
+                type="password"
+                placeholder="Paste key to save to Gmail..."
+                value={geminiApiKey}
+                onChange={(e) => handleSaveApiKey(e.target.value)}
+                className="bg-transparent focus:outline-none w-full text-ink font-mono text-xs placeholder:text-graphite/40"
+              />
+              <a
+                href="https://aistudio.google.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brass shrink-0 hover:underline font-medium text-[10px] sm:text-xs"
+                title="Get a free Gemini API key from Google AI Studio"
+              >
+                Get Key ↗
+              </a>
+            </div>
           </div>
         ) : (
-          <button
-            onClick={() => signIn("google")}
-            className="focus-ring flex items-center gap-2 rounded-full border border-ink bg-ink px-5 py-2 text-sm font-medium text-paper transition hover:bg-slate"
-          >
-            <GoogleIcon className="h-4 w-4" />
-            Connect Gmail to send directly
-          </button>
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
+            <button
+              onClick={() => signIn("google")}
+              className="focus-ring flex items-center gap-2 rounded-full border border-ink bg-ink px-5 py-2 text-sm font-medium text-paper transition hover:bg-slate shrink-0"
+            >
+              <GoogleIcon className="h-4 w-4" />
+              Connect Gmail to send directly
+            </button>
+
+            {/* Guest Gemini API Key Field */}
+            <div className="flex items-center gap-2 rounded-full border border-line bg-white/60 px-4 py-2 text-xs text-graphite shadow-sm w-full max-w-sm">
+              <span className="font-medium shrink-0">Gemini API Key:</span>
+              <input
+                type="password"
+                placeholder="Paste key to use as Guest..."
+                value={geminiApiKey}
+                onChange={(e) => handleSaveApiKey(e.target.value)}
+                className="bg-transparent focus:outline-none w-full text-ink font-mono text-xs placeholder:text-graphite/40"
+              />
+              <a
+                href="https://aistudio.google.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brass shrink-0 hover:underline font-medium text-[10px] sm:text-xs"
+                title="Get a free Gemini API key from Google AI Studio"
+              >
+                Get Key ↗
+              </a>
+            </div>
+          </div>
         )}
       </div>
 
