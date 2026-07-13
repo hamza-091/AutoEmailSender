@@ -28,23 +28,23 @@ export async function POST(req: NextRequest) {
 Write a personalized job application email body based on the job description below.
 
 Requirements:
-- Start with exactly:
+- Start the email body with exactly:
 Dear HR,
 
-- End with exactly:
+- End the email body with exactly:
 
 Sincerely,
 ${candidateName || "Hamza Mehmood"}
 
-- Do NOT generate a subject line.
 - Do NOT use markdown.
-- Return only the email body.
-- On the first line of your response, write 'To: <recruiter email>'. If the job description contains a specific recruiter email address, use that. If not, analyze the company name and construct/guess the most plausible corporate recruitment email address (e.g., if the company name is 'Contour Software', use 'careers@contour-software.com' or 'hr@contour-software.com'; if 'eComercify', use 'hr@ecomercify.com' or 'jobs@ecomercify.com').
+- Generate a subject line on the first line of your response in this exact format: 'Subject: Internship Application: [Job Title]' if it is an internship, or 'Subject: Job Application: [Job Title]' if it is a job. Do NOT include the candidate's name or any other details in the subject line.
+- On the second line of your response, write 'To: <recruiter email>'. If the job description contains a specific recruiter email address, use that. If not, analyze the company name and construct/guess the most plausible corporate recruitment email address (e.g., if the company name is 'Contour Software', use 'careers@contour-software.com' or 'hr@contour-software.com').
 
 Writing Style:
+- Go straight to the point immediately. Avoid generic introductory fluff.
 - Sound like a genuine recent graduate, not an AI assistant.
 - Use natural, human language.
-- Keep the email between 110 and 160 words.
+- Keep the email body strictly between 80 and 110 words.
 - Avoid repeating ideas.
 - Every email should be different in wording and sentence structure.
 - Never copy common AI phrases such as:
@@ -53,7 +53,7 @@ Writing Style:
   - "My academic background has equipped me..."
   - "I welcome the opportunity..."
   - "I would like to express my sincere interest..."
-- Use varied openings that reference the company or role naturally.
+- Use varied openings that reference the company or role naturally and directly.
 
 Personal Information:
 - I recently completed a BS in Computer Science.
@@ -62,11 +62,11 @@ Personal Information:
 - I have experience with software projects, problem-solving, teamwork, and communication.
 - Mention technical skills only if they are relevant to the job description.
 - If the role is non-technical, focus on transferable skills such as organization, analytical thinking, communication, Excel, attention to detail, adaptability, and willingness to learn.
-- Never invent internships, work experience, certifications, or achievements.
+- Never invent internships, work experience, certifications, specific platform skills (like WooCommerce, Shopify), or achievements.
 
 The email should:
 - Mention why I am interested in THIS specific company or role.
-- Connect my skills to the requirements in the job description.
+- Connect my skills directly to the requirements in the job description.
 - Mention that my resume is attached.
 - Thank the recruiter for their time.
 - End confidently but politely.
@@ -74,6 +74,7 @@ The email should:
 The email should feel like it was written specifically for this company and should not sound like a generic template.
 
 Format your output exactly as:
+Subject: <subject line>
 To: <recruiter email>
 
 Dear HR,
