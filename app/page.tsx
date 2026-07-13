@@ -20,6 +20,7 @@ export default function Home() {
   const [tone, setTone] = useState(TONES[0]);
 
   const [subject, setSubject] = useState("");
+  const [company, setCompany] = useState("");
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -173,6 +174,7 @@ export default function Home() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong.");
       if (data.subject) setSubject(data.subject);
+      if (data.company) setCompany(data.company);
       setBody(data.body);
       setJustStamped(true);
     } catch (e: any) {
@@ -213,7 +215,7 @@ export default function Home() {
         subject,
         body: finalBody,
         jobTitle: subject || "Job Application",
-        company: "",
+        company: company,
         category: "Manual",
         status: "Sent",
         jobContent: jobPost
@@ -227,7 +229,7 @@ export default function Home() {
         subject,
         body: finalBody,
         jobTitle: subject || "Job Application",
-        company: "",
+        company: company,
         category: "Manual",
         status: "Failed",
         error: e.message,

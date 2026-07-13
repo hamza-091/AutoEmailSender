@@ -59,6 +59,7 @@ Adaptation rules:
 Always use this exact structure:
 Subject: <Job Title>
 To: <recruiter email>
+Company: <Company>
 
 Dear Hiring Team,
 
@@ -77,11 +78,13 @@ Hamza Mehmood
 
 Instructions for variables:
 - Extract the <Job Title> and <Company> from the job description.
+- Under 'Company: <Company>', write the hiring company name extracted from the job description.
 - Under 'To: <recruiter email>', extract the email from the job post. If none is found, guess the most plausible corporate recruitment email address (e.g., hr@company.com or careers@company.com).
 
 Here is an example of the target style, structure, and tone to emulate:
 Subject: Web Developer
 To: hr@hubsalt.com
+Company: HubSalt
 
 Dear Hiring Team,
 
@@ -150,10 +153,18 @@ ${trimmedJobPost}`;
       recipientEmail = toMatch[1].replace(/\*+/g, "").trim();
     }
 
-    // Clean body by stripping Subject and To lines
+    // Extract Company
+    let companyName = "";
+    const companyMatch = text.match(/^\*?\*?Company\*?\*?:\s*(.+)$/mi);
+    if (companyMatch) {
+      companyName = companyMatch[1].replace(/\*+/g, "").trim();
+    }
+
+    // Clean body by stripping Subject, To, and Company lines
     body = text
       .replace(/^\*?\*?Subject\*?\*?:\s*.+\n*/i, "")
       .replace(/^\*?\*?To\*?\*?:\s*.+\n*/i, "")
+      .replace(/^\*?\*?Company\*?\*?:\s*.+\n*/i, "")
       .trim();
 
     // Fallback: If no subject was parsed from the text, try to extract it from the job post text
@@ -164,7 +175,7 @@ ${trimmedJobPost}`;
       }
     }
 
-    return NextResponse.json({ subject, body, recipientEmail, raw: text });
+    return NextResponse.json({ subject, body, recipientEmail, company: companyName, raw: text });
   } catch (err: any) {
     return NextResponse.json({ error: err?.message || "Unknown server error" }, { status: 500 });
   }
