@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
     const keywords = searchParams.get("keywords") || "Software Engineer";
     const location = searchParams.get("location") || "Pakistan";
 
-    const url = `https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=${encodeURIComponent(keywords)}&location=${encodeURIComponent(location)}`;
+    const url = `https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=${encodeURIComponent(keywords)}&location=${encodeURIComponent(location)}&sortBy=DD&f_TPR=r2592000`;
 
     const res = await fetch(url, {
       headers: {

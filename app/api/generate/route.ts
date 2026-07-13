@@ -27,6 +27,7 @@ Your task is to write a professional job application email based on the provided
 Instructions:
 - Start the email with: "Dear HR," (or a more specific greeting if the company or team name is available in the job description, e.g., "Dear Puma Energy Pakistan Recruitment Team,").
 - Always include a subject line at the very beginning of your response, prefixed with 'Subject:'. If the job post explicitly mentions a specific subject line format, use that exact format. Otherwise, generate an appropriate, professional, and concise subject line (e.g., 'Job Application: [Job Title] - [Candidate Name]' or similar).
+- On the second line, write 'To: <recruiter email>'. If the job description contains a specific recruiter email address, use that. If not, analyze the company name and construct/guess the most plausible corporate recruitment email address (e.g., if the company name is 'Contour Software', use 'careers@contour-software.com' or 'hr@contour-software.com'; if 'eComercify', use 'hr@ecomercify.com' or 'jobs@ecomercify.com').
 - Keep the email extremely concise, personalized, and strictly under 170 words (ideally between 100-150 words). Avoid longer, generic cover-letter-like emails. Recruiters scan emails quickly (10-20 seconds), so being concise has a stronger impact.
 - Avoid long, winding sentences (especially the first sentence). Get to the point quickly.
 - Avoid overused generic phrases and standard clichés (e.g., instead of repeating 'analytical thinking and problem-solving skills' or calling yourself a generic 'quick learner', describe your qualities naturally and confidently).
@@ -51,6 +52,11 @@ Important:
 - Make every email sound unique rather than using the same template.
 - Do not use bullet points.
 - Produce polished, natural English suitable for multinational companies.
+- Output ONLY the email: a subject line, then the recruiter email, then the body. No preamble, no explanation, no markdown, no quotes around it. Format exactly as:
+Subject: <subject line>
+To: <recruiter email>
+
+<email body>
 
 Here is an example of the target style, conciseness, and natural tone to emulate:
 Dear HR,
@@ -102,21 +108,37 @@ ${jobPost}`;
       return NextResponse.json({ error: "Empty response from Gemini model." }, { status: 502 });
     }
 
-    // Try to extract subject line from the job description if present
-    const subjectMatchInJob = jobPost.match(/(?:Subject\s*Line|Subject):\s*(.+)/i);
-    let subject = subjectMatchInJob ? subjectMatchInJob[1].trim() : "";
-
-    // If the model did output a Subject line, extract it and clean the body
     let body = text;
+
+    // Extract Subject
+    let subject = "";
     const subjectMatch = text.match(/^\*?\*?Subject\*?\*?:\s*(.+)$/mi);
     if (subjectMatch) {
-      if (!subject) {
-        subject = subjectMatch[1].replace(/\*+/g, "").trim();
-      }
-      body = text.replace(/^\*?\*?Subject\*?\*?:\s*.+\n*/i, "").trim();
+      subject = subjectMatch[1].replace(/\*+/g, "").trim();
     }
 
-    return NextResponse.json({ subject, body, raw: text });
+    // Extract To (recruiter email)
+    let recipientEmail = "";
+    const toMatch = text.match(/^\*?\*?To\*?\*?:\s*(.+)$/mi);
+    if (toMatch) {
+      recipientEmail = toMatch[1].replace(/\*+/g, "").trim();
+    }
+
+    // Clean body by stripping Subject and To lines
+    body = text
+      .replace(/^\*?\*?Subject\*?\*?:\s*.+\n*/i, "")
+      .replace(/^\*?\*?To\*?\*?:\s*.+\n*/i, "")
+      .trim();
+
+    // Fallback: If no subject was parsed from the text, try to extract it from the job post text
+    if (!subject) {
+      const subjectMatchInJob = jobPost.match(/(?:Subject\s*Line|Subject):\s*(.+)/i);
+      if (subjectMatchInJob) {
+        subject = subjectMatchInJob[1].trim();
+      }
+    }
+
+    return NextResponse.json({ subject, body, recipientEmail, raw: text });
   } catch (err: any) {
     return NextResponse.json({ error: err?.message || "Unknown server error" }, { status: 500 });
   }

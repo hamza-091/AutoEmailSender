@@ -246,7 +246,7 @@ export default function Home() {
       const matchedJobsList = [];
       
       // Limit search iterations to prevent API abuse/rate limits
-      const jobsToProcess = jobs.slice(0, 15);
+      const jobsToProcess = jobs.slice(0, 30);
       for (let i = 0; i < jobsToProcess.length && matchCount < 5; i++) {
         const currentJob = jobsToProcess[i];
         addLog(`[${i+1}/${jobsToProcess.length}] Fetching details for "${currentJob.title}" at ${currentJob.company}...`);
@@ -303,9 +303,9 @@ export default function Home() {
         const job = matchedJobsList[k];
         addLog(`Drafting email for "${job.title}" at ${job.company}...`);
         
-        // Extract email from job post (fallback to standard recruitment placeholder if none found)
+        // Try to extract email from job post
         const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
-        const extractedEmail = job.description.match(emailRegex)?.[0] || "recruiter@company.com";
+        let extractedEmail = job.description.match(emailRegex)?.[0];
         
         // Generate customized email body
         const genRes = await fetch("/api/generate", {
@@ -327,6 +327,18 @@ export default function Home() {
         }
 
         const genData = await genRes.json();
+        
+        // Fallback to Gemini guessed email if no email was found in the text
+        if (!extractedEmail && genData.recipientEmail) {
+          extractedEmail = genData.recipientEmail;
+          addLog(`Guessed recruiter email for ${job.company}: ${extractedEmail}`);
+        }
+        
+        // Final default fallback
+        if (!extractedEmail) {
+          extractedEmail = "recruiter@company.com";
+        }
+
         const emailSubject = genData.subject || `Application - ${job.title}`;
         const emailBody = (candidateName && !genData.body.includes(candidateName)) ? `${genData.body}\n\n${candidateName}` : genData.body;
 
